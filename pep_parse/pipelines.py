@@ -1,7 +1,8 @@
+import csv
 from collections import defaultdict
 from datetime import datetime
 
-from pep_parse.settings import BASE_DIR
+from pep_parse.settings import BASE_DIR, RESULT_DIR
 
 
 class PepParsePipeline:
@@ -9,8 +10,7 @@ class PepParsePipeline:
     total_pep_count = 0
 
     def open_spider(self, spider):
-        result_dir = BASE_DIR / 'results'
-        result_dir.mkdir(exist_ok=True)
+        RESULT_DIR.mkdir(exist_ok=True)
 
     def process_item(self, item, spider):
         if item.get('status'):
@@ -24,8 +24,11 @@ class PepParsePipeline:
         now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         file_name = f'status_summary_{now}.csv'
         file_path = BASE_DIR / 'results' / file_name
+
+        output_csv = [('Cтатус', 'Количество')]
+        output_csv.extend(self.pep_status_count.items())
+        output_csv.append(('Total: ', self.total_pep_count))
+
         with open(file_path, mode='w', encoding='utf-8') as file:
-            file.write('Статус,Количество\n')
-            for status in self.pep_status_count:
-                file.write(f'{status},{self.pep_status_count[status]}\n')
-            file.write(f'Total,{self.total_pep_count}\n')
+            csv_writer = csv.writer(file)
+            csv_writer.writerows(output_csv)

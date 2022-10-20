@@ -16,3 +16,4 @@ ITEM_PIPELINES = {
     'pep_parse.pipelines.PepParsePipeline': 300,
 }
 BASE_DIR = Path(__file__).parent.parent
+RESULT_DIR = BASE_DIR / 'results'
